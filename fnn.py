@@ -5,13 +5,17 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import datetime
 import tqdm
+import cpuinfo
+import os
 
 # gpu / cpu check
 if torch.cuda.is_available():
 	print('resource: GPU Available')
+    # os.system(nvidia-smi)
 
 else:
-	print('resource: CPU Available')
+	print('resource: ',cpuinfo.get_cpu_info()['brand'])
+    # os.system()
 
 
 
@@ -22,7 +26,8 @@ input_size = 5
 hidden_size = 10
 num_classes = 4
 learning_rate = 0.001
-epochs = 500
+epochs = 3000
+time_delay_tqdm = 0.001
 
 
 # defining input and target
@@ -62,7 +67,7 @@ def plot_loss(e,epochs):
 	#plt.show()
 	plt.close()
 
-	print("final accuracy: ", y.pop())
+	print("train accuracy: ", y.pop())
 
 
 
@@ -148,7 +153,7 @@ for epoch in tqdm(range(0,epochs),desc = 'training'):
 		#
 		# print ("percentage of training complete: ", ((1-(epoch/epochs)) * 100))
 
-		time.sleep(0.01) #update the tqdm object after the sleeping time
+		time.sleep(time_delay_tqdm) #update the tqdm object after the sleeping time
 net_time = datetime.datetime.now()-start
 
 print("total time: ",net_time)
