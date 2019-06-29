@@ -8,21 +8,21 @@ import tqdm
 
 # gpu / cpu check
 if torch.cuda.is_available():
-	print('GPU Available')
+	print('resource: GPU Available')
 
 else:
-	print('CPU Available')
+	print('resource: CPU Available')
 
 
 
 # torch version and all hyper parameters
-print(torch.__version__)
+print('pytorch version: ',torch.__version__)
 batch_size = 5
 input_size = 5
 hidden_size = 10
 num_classes = 4
 learning_rate = 0.001
-epochs = 5
+epochs = 500
 
 
 # defining input and target
@@ -56,6 +56,7 @@ def plot_loss(e,epochs):
 	# giving a title to my graph
 	plt.title('Training ')
 	plt.savefig('train.png')
+	print('training plot: train.png')
 
 	# function to show the plot
 	#plt.show()
@@ -147,8 +148,10 @@ for epoch in tqdm(range(0,epochs),desc = 'training'):
 		#
 		# print ("percentage of training complete: ", ((1-(epoch/epochs)) * 100))
 
-		time.sleep(0.1) #update the tqdm object after the sleeping time
+		time.sleep(0.01) #update the tqdm object after the sleeping time
+net_time = datetime.datetime.now()-start
 
+print("total time: ",net_time)
 
 
 
