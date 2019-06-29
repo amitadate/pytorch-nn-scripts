@@ -1,3 +1,7 @@
+## start of script
+
+
+
 # imports
 import torch
 from torch import autograd, nn
@@ -7,6 +11,10 @@ import datetime
 import tqdm
 import cpuinfo
 import os
+from tqdm import tqdm
+import time
+import argparse
+from torchsummary import summary
 
 # gpu / cpu check
 if torch.cuda.is_available():
@@ -26,7 +34,7 @@ input_size = 5
 hidden_size = 10
 num_classes = 4
 learning_rate = 0.001
-epochs = 3000
+epochs = 1000
 time_delay_tqdm = 0.001
 
 
@@ -104,8 +112,7 @@ d = [] # list for tracking loss
 # pbar = tqdm.tqdm(total=100) #choose number of levels on progress bar
 # outer = tqdm.tqdm(total=epochs, position=0)
 
-from tqdm import tqdm
-import time
+summary(M1,input_size=input.shape)
 
 for epoch in tqdm(range(0,epochs),desc = 'training'):
 
@@ -168,4 +175,16 @@ plot_loss(d,epochs) # plotting loss vs epochs
 
 
 
-	# print("current time: ", time.time())
+
+
+
+
+
+
+
+
+
+
+
+
+## end of script
