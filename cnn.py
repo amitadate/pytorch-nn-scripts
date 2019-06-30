@@ -32,7 +32,7 @@ if torch.cuda.is_available():
 	print('resource: GPU Available')
 	device = torch.device("cuda")
 	print(' ')
-	cmd = 'nvidia-smi'
+	cmd = 'gpustat'
 	os.system(cmd)
 	print(' ')
     # os.system(nvidia-smi)
@@ -48,12 +48,12 @@ else:
 print('pytorch version: ',torch.__version__)
 path = os.getcwd()
 input_size = 784
-hidden_size = 1
+hidden_size = 100
 num_classes = 10
-num_epochs = 1
+num_epochs = 100
 batch_size = 100
 learning_rate = 0.001
-time_delay_tqdm = 0.1
+time_delay_tqdm = 0.00
 
 
 # fetching the training and testing datasets from torchvision
@@ -79,8 +79,7 @@ test_loader = torch.utils.data.DataLoader(dataset=test_dataset,
                                           shuffle=False)
 
 
-print('****************')
-print(len(test_loader.dataset))
+
 # the nn class defination
 class Net(nn.Module):
 	def __init__(self, input_size, hidden_size, num_classes):
@@ -116,9 +115,9 @@ train_loss_list = [] # list for tracking loss
 
 total_step = len(train_loader)
 
-print(' ')
-print('training started')
-print(' ')
+
+
+
 
 # training loop
 start = datetime.datetime.now()
@@ -126,7 +125,11 @@ start = datetime.datetime.now()
 total = 0
 correct = 0
 
-for epoch in range(0,num_epochs):
+
+pbar1 = tqdm(total = num_epochs,desc = 'training')
+for epoch in range (0,num_epochs):
+
+
 	for i, (images, labels) in enumerate(train_loader):
 
 		temp_time = datetime.datetime.now()
@@ -150,20 +153,25 @@ for epoch in range(0,num_epochs):
 		loss.backward()
 		opt.step()
 
-		if (i+1) % 100 == 0:
-
-			#print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, i+1, total_step, loss.item()))
-			train_loss_list.append(loss.item())
+	pbar1.update(1)
+	time.sleep(time_delay_tqdm)
+		# if ((i+1) % 100 == 0):
+		# 	print("#")
+		# 	print(loss.item())
+		# 	print('#')
+		#
+		# 	print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, i+1, total_step, loss.item()))
+pbar1.close()
 
 
 net_time = datetime.datetime.now()-start
-print(' ')
-print('training ended')
+
 print(' ')
 print("total time for training : ",net_time)
 print(' ')
-print('train loss: ',train_loss_list.pop())
+print('train accuracy: ',1-train_loss_list.pop())
 print(' ')
+
 
 
 
@@ -174,34 +182,33 @@ print(' ')
  # ----------- TESTING BEGINS -------------- #
 
 # testing loop
+start = datetime.datetime.now()
 
 test_runs = len(test_loader)
 
-pbar = tqdm(total = len(test_loader))
-
-print(' ')
-print('testing started')
-print(' ')
-
 
 with torch.no_grad():
+	pbar2 = tqdm(total=test_runs, desc = 'testing')
 	total = 0
 	correct = 0
 	for images,labels in test_loader:
+		temp_time = datetime.datetime.now()
 		images = images.reshape(-1,28*28).to(device)
 		labels = labels.to(device)
 		output = M1(images)
 		_, predicted = torch.max(output.data, 1)
 		total += labels.size(0)
 		correct += (predicted==labels).sum().item()
-		pbar.update(1)
+		pbar2.update(1)
 		time.sleep(time_delay_tqdm)
 
 
-pbar.close()
+pbar2.close()
+
+net_time = datetime.datetime.now()-start
 
 print(' ')
-print('testing ended')
+print("total time for testing : ",net_time)
 print(' ')
 print('Number of test runs: ',total)
 print(' ')
