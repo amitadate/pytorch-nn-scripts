@@ -126,6 +126,9 @@ d = [] # list for tracking loss
 # pbar = tqdm.tqdm(total=100) #choose number of levels on progress bar
 # outer = tqdm.tqdm(total=epochs, position=0)
 print(' ')
+print('input ', input)
+print('input_size ', input_size)
+print('input_shape ', input.shape)
 summary(M1,input_size=input.shape)
 print(' ')
 for epoch in tqdm(range(0,epochs),desc = 'training'):
