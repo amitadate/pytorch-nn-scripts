@@ -50,7 +50,7 @@ path = os.getcwd()
 input_size = 784
 hidden_size = 100
 num_classes = 10
-num_epochs = 100
+num_epochs = 3
 batch_size = 100
 learning_rate = 0.001
 time_delay_tqdm = 0.00
@@ -253,7 +253,7 @@ def plot_loss(e,epochs):
 
 
 
-
+torch.save(M1.state_dict(), path + '/ckpt/model.ckpt')
 
 
 
