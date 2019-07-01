@@ -22,6 +22,7 @@ import argparse
 from torchsummary import summary
 import torchvision
 import torchvision.transforms as transforms
+from torch.utils.data.sampler import SubsetRandomSampler
 # choose one from the below imports
 from tqdm import tqdm # scripts
 # from tqdm import tqdm_notebook as tqdm # notebooks
@@ -32,7 +33,6 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("epochs" , help="display a square of a given number",
                     type=int)
-parser.add_argument("mode" , help="display a square of a given number")
 args = parser.parse_args()
 
 # gpu / cpu check
@@ -64,47 +64,72 @@ num_epochs = args.epochs
 batch_size = 100
 learning_rate = 0.001
 time_delay_tqdm = 0.00
-eval_mode = str(args.mode)
 
 
 # fetching the training and testing datasets from torchvision
-train_dataset = torchvision.datasets.MNIST(root=path + '/data/mnist/',
-                                           train=True,
-                                           transform=transforms.ToTensor(),
-                                           download=True)
+
+transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+
+train_set = torchvision.datasets.CIFAR10(root='./cifardata', train=True, download=True, transform=transform)
+
+test_set = torchvision.datasets.CIFAR10(root='./cifardata', train=False, download=True, transform=transform)
+
+classes = ('plane', 'car', 'bird', 'cat',
+           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
 
-test_dataset = torchvision.datasets.MNIST(root=path + '/data/mnist/',
-                                          train=False,
-                                          transform=transforms.ToTensor(),
-										  download=True)
+#
 
 
-# convert the dataset into input tensors with one of the dimensions being the batch size
-train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
-                                           batch_size=batch_size,
-                                           shuffle=True)
+#Training
+n_training_samples = 20000
+train_sampler = SubsetRandomSampler(np.arange(n_training_samples, dtype=np.int64))
 
-test_loader = torch.utils.data.DataLoader(dataset=test_dataset,
-                                          batch_size=batch_size,
-                                          shuffle=False)
+#Validation
+n_val_samples = 5000
+val_sampler = SubsetRandomSampler(np.arange(n_training_samples, n_training_samples + n_val_samples, dtype=np.int64))
 
+#Test
+n_test_samples = 5000
+test_sampler = SubsetRandomSampler(np.arange(n_test_samples, dtype=np.int64))
 
 
 # the nn class defination
 class Net(nn.Module):
 	def __init__(self, input_size, hidden_size, num_classes):
-		super().__init__()
-		self.h1 = nn.Linear(input_size, hidden_size)
-		self.h2 = nn.Linear(hidden_size, num_classes)
-		self.relu = nn.ReLU()
+		super(Net, self).__init__()
+        #Input channels = 3, output channels = 18
+        self.conv1 = torch.nn.Conv2d(3, 18, kernel_size=3, stride=1, padding=1)
+        self.pool = torch.nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
+
+        #4608 input features, 64 output features (see sizing flow below)
+        self.fc1 = torch.nn.Linear(18 * 16 * 16, 64)
+
+        #64 input features, 10 output features for our 10 defined classes
+        self.fc2 = torch.nn.Linear(64, 10)
+
 
 	def forward(self, x):
-		x = self.h1(x)
-		x = self.relu(x)
-		x = self.h2(x)
-		# x = F.softmax(x, dim = 1)
-		return x
+        #Computes the activation of the first convolution
+        #Size changes from (3, 32, 32) to (18, 32, 32)
+        x = F.relu(self.conv1(x))
+
+        #Size changes from (18, 32, 32) to (18, 16, 16)
+        x = self.pool(x)
+
+        #Reshape data to input to the input layer of the neural net
+        #Size changes from (18, 16, 16) to (1, 4608)
+        #Recall that the -1 infers this dimension from the other given dimension
+        x = x.view(-1, 18 * 16 *16)
+
+        #Computes the activation of the first fully connected layer
+        #Size changes from (1, 4608) to (1, 64)
+        x = F.relu(self.fc1(x))
+
+        #Computes the second fully connected layer (activation applied later)
+        #Size changes from (1, 64) to (1, 10)
+        x = self.fc2(x)
+        return(x)
 
 # the nn object creation
 M1 = Net(input_size=input_size, hidden_size=hidden_size, num_classes=num_classes).to(device)
