@@ -15,4 +15,4 @@ The pipeline used for the experiments is the following.
 
 Example for fully-connected-network on mnist: 
 
-![](trial.mov)
+![](trial.gif)
