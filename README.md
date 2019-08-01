@@ -16,3 +16,5 @@ The pipeline used for the experiments is the following.
 Example for fully-connected-network on mnist: 
 
 ![](trial.gif)
+
+Work in progress and models will be added catering to the pipeline above. 
