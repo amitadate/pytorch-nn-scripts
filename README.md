@@ -14,3 +14,5 @@ The pipeline used for the experiments is the following.
     └── model.py          # script file from this repo, use model --help to get details about input arguments
 
 Example for fully-connected-network on mnist: 
+
+![](trial.mov)
